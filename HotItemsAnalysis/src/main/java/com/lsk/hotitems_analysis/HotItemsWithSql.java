@@ -25,7 +25,8 @@ public class HotItemsWithSql {
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
         // 2. 读取数据，创建DataStream
-        DataStream<String> inputStream = env.readTextFile("D:\\Projects\\BigData\\UserBehaviorAnalysis\\HotItemsAnalysis\\src\\main\\resources\\UserBehavior.csv");
+        DataStream<String> inputStream = env.readTextFile("D:\\workspace\\bigdata-flink-UserBehaviorAnalysis"
+                + "\\HotItemsAnalysis\\src\\main\\resources\\UserBehavior.csv");
 
         // 3. 转换为POJO，分配时间戳和watermark
         DataStream<UserBehavior> dataStream = inputStream
@@ -68,6 +69,8 @@ public class HotItemsWithSql {
                 "  from agg) " +
                 " where row_num <= 5 ");
 
+        //        tableEnv.toRetractStream(resultTable, Row.class).print();
+
         // 纯SQL实现
         tableEnv.createTemporaryView("data_table", dataStream, "itemId, behavior, timestamp.rowtime as ts");
         Table resultSqlTable = tableEnv.sqlQuery("select * from " +
@@ -81,7 +84,6 @@ public class HotItemsWithSql {
                 "  ) " +
                 " where row_num <= 5 ");
 
-//        tableEnv.toRetractStream(resultTable, Row.class).print();
         tableEnv.toRetractStream(resultSqlTable, Row.class).print();
 
         env.execute("hot items with sql job");
