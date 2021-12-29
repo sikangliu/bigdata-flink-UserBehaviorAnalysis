@@ -2,6 +2,7 @@ package com.lsk.networkflow_analysis;
 
 import com.lsk.networkflow_analysis.beans.ApacheLogEvent;
 import com.lsk.networkflow_analysis.beans.PageViewCount;
+import java.net.URL;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
