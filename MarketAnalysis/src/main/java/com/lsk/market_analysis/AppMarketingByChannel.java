@@ -109,6 +109,7 @@ public class AppMarketingByChannel {
         @Override
         public void process(Tuple tuple, Context context, Iterable<Long> elements, Collector<ChannelPromotionCount> out)
                 throws Exception {
+            //顺序看的是keyby的顺序
             String channel = tuple.getField(0);
             String behavior = tuple.getField(1);
             String windowEnd = new Timestamp(context.window().getEnd()).toString();

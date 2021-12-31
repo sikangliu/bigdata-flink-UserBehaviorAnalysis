@@ -32,8 +32,8 @@ public class UvWithBloomFilter {
         DataStream<UserBehavior> dataStream = inputStream
                 .map(line -> {
                     String[] fields = line.split(",");
-                    return new UserBehavior(new Long(fields[0]), new Long(fields[1]), new Integer(fields[2]), fields[3],
-                            new Long(fields[4]));
+                    return new UserBehavior(new Long(fields[0]), new Long(fields[1]),
+                            new Integer(fields[2]), fields[3], new Long(fields[4]));
                 })
                 .assignTimestampsAndWatermarks(new AscendingTimestampExtractor<UserBehavior>() {
                     @Override
@@ -57,24 +57,23 @@ public class UvWithBloomFilter {
     // 自定义触发器
     public static class MyTrigger extends Trigger<UserBehavior, TimeWindow> {
         @Override
-        public TriggerResult onElement(UserBehavior element, long timestamp, TimeWindow window, TriggerContext ctx)
-                throws Exception {
+        public TriggerResult onElement(UserBehavior element, long timestamp, TimeWindow window, TriggerContext ctx) {
             // 每一条数据来到，直接触发窗口计算，并且直接清空窗口
             return TriggerResult.FIRE_AND_PURGE;
         }
 
         @Override
-        public TriggerResult onProcessingTime(long time, TimeWindow window, TriggerContext ctx) throws Exception {
+        public TriggerResult onProcessingTime(long time, TimeWindow window, TriggerContext ctx) {
             return TriggerResult.CONTINUE;
         }
 
         @Override
-        public TriggerResult onEventTime(long time, TimeWindow window, TriggerContext ctx) throws Exception {
+        public TriggerResult onEventTime(long time, TimeWindow window, TriggerContext ctx) {
             return TriggerResult.CONTINUE;
         }
 
         @Override
-        public void clear(TimeWindow window, TriggerContext ctx) throws Exception {
+        public void clear(TimeWindow window, TriggerContext ctx) {
         }
     }
 
@@ -105,14 +104,13 @@ public class UvWithBloomFilter {
         MyBloomFilter myBloomFilter;
 
         @Override
-        public void open(Configuration parameters) throws Exception {
+        public void open(Configuration parameters) {
             jedis = new Jedis("localhost", 6379);
             myBloomFilter = new MyBloomFilter(1 << 29);    // 要处理1亿个数据，用64MB大小的位图
         }
 
         @Override
-        public void process(Context context, Iterable<UserBehavior> elements, Collector<PageViewCount> out)
-                throws Exception {
+        public void process(Context context, Iterable<UserBehavior> elements, Collector<PageViewCount> out) {
             // 将位图和窗口count值全部存入redis，用windowEnd作为key
             Long windowEnd = context.window().getEnd();
             String bitmapKey = windowEnd.toString();
@@ -146,7 +144,7 @@ public class UvWithBloomFilter {
         }
 
         @Override
-        public void close() throws Exception {
+        public void close() {
             jedis.close();
         }
     }

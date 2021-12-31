@@ -30,11 +30,12 @@ public class AdStatisticsByProvince {
 
         // 1. 从文件中读取数据
         URL resource = AdStatisticsByProvince.class.getResource("/AdClickLog.csv");
-        DataStream<AdClickEvent> adClickEventStream = env.readTextFile(resource.getPath())
+        DataStream<AdClickEvent> adClickEventStream = env
+                .readTextFile(resource.getPath())
                 .map(line -> {
                     String[] fields = line.split(",");
-                    return new AdClickEvent(new Long(fields[0]), new Long(fields[1]), fields[2], fields[3],
-                            new Long(fields[4]));
+                    return new AdClickEvent(new Long(fields[0]), new Long(fields[1]),
+                            fields[2], fields[3], new Long(fields[4]));
                 })
                 .assignTimestampsAndWatermarks(new AscendingTimestampExtractor<AdClickEvent>() {
                     @Override
@@ -109,14 +110,16 @@ public class AdStatisticsByProvince {
 
         @Override
         public void open(Configuration parameters) throws Exception {
-            countState = getRuntimeContext().getState(new ValueStateDescriptor<Long>("ad-count", Long.class, 0L));
-            isSentState =
-                    getRuntimeContext().getState(new ValueStateDescriptor<Boolean>("is-sent", Boolean.class, false));
+            countState = getRuntimeContext().getState(
+                    new ValueStateDescriptor<Long>("ad-count", Long.class, 0L));
+            isSentState = getRuntimeContext().getState(
+                    new ValueStateDescriptor<Boolean>("is-sent", Boolean.class, false));
         }
 
         @Override
         public void processElement(AdClickEvent value, Context ctx, Collector<AdClickEvent> out) throws Exception {
-            // 判断当前用户对同一广告的点击次数，如果不够上限，就count加1正常输出；如果达到上限，直接过滤掉，并侧输出流输出黑名单报警
+            // 判断当前用户对同一广告的点击次数，如果不够上限，就count加1正常输出；
+            // 如果达到上限，直接过滤掉，并侧输出流输出黑名单报警
             // 首先获取当前的count值
             Long curCount = countState.value();
 

@@ -40,9 +40,10 @@ public class UniqueVisitor {
                 });
 
         // 开窗统计uv值
-        SingleOutputStreamOperator<PageViewCount> uvStream = dataStream.filter(data -> "pv".equals(data.getBehavior()))
-                .timeWindowAll(Time.hours(1))
-                .apply(new UvCountResult());
+        SingleOutputStreamOperator<PageViewCount> uvStream =
+                dataStream.filter(data -> "pv".equals(data.getBehavior()))
+                        .timeWindowAll(Time.hours(1))
+                        .apply(new UvCountResult());
 
         uvStream.print();
 
@@ -52,8 +53,7 @@ public class UniqueVisitor {
     // 实现自定义全窗口函数
     public static class UvCountResult implements AllWindowFunction<UserBehavior, PageViewCount, TimeWindow> {
         @Override
-        public void apply(TimeWindow window, Iterable<UserBehavior> values, Collector<PageViewCount> out)
-                throws Exception {
+        public void apply(TimeWindow window, Iterable<UserBehavior> values, Collector<PageViewCount> out) {
             // 定义一个Set结构，保存窗口中的所有userId，自动去重
             HashSet<Long> uidSet = new HashSet<>();
             for (UserBehavior ub : values) {

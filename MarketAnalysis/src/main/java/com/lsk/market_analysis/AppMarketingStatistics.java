@@ -24,14 +24,14 @@ public class AppMarketingStatistics {
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
         // 1. 从自定义数据源中读取数据
-        DataStream<MarketingUserBehavior> dataStream =
-                env.addSource(new AppMarketingByChannel.SimulatedMarketingUserBehaviorSource())
-                        .assignTimestampsAndWatermarks(new AscendingTimestampExtractor<MarketingUserBehavior>() {
-                            @Override
-                            public long extractAscendingTimestamp(MarketingUserBehavior element) {
-                                return element.getTimestamp();
-                            }
-                        });
+        DataStream<MarketingUserBehavior> dataStream = env
+                .addSource(new AppMarketingByChannel.SimulatedMarketingUserBehaviorSource())
+                .assignTimestampsAndWatermarks(new AscendingTimestampExtractor<MarketingUserBehavior>() {
+                    @Override
+                    public long extractAscendingTimestamp(MarketingUserBehavior element) {
+                        return element.getTimestamp();
+                    }
+                });
 
         // 2. 开窗统计总量
         SingleOutputStreamOperator<ChannelPromotionCount> resultStream = dataStream
@@ -76,8 +76,7 @@ public class AppMarketingStatistics {
     public static class MarketingStatisticsResult
             implements WindowFunction<Long, ChannelPromotionCount, Tuple, TimeWindow> {
         @Override
-        public void apply(Tuple tuple, TimeWindow window, Iterable<Long> input, Collector<ChannelPromotionCount> out)
-                throws Exception {
+        public void apply(Tuple tuple, TimeWindow window, Iterable<Long> input, Collector<ChannelPromotionCount> out) {
             String windowEnd = new Timestamp(window.getEnd()).toString();
             Long count = input.iterator().next();
 

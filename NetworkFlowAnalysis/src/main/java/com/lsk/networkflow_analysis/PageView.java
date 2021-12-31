@@ -48,8 +48,7 @@ public class PageView {
 
         // 4. 分组开窗聚合，得到每个窗口内各个商品的count值
         SingleOutputStreamOperator<Tuple2<String, Long>> pvResultStream0 =
-                dataStream
-                        .filter(data -> "pv".equals(data.getBehavior()))    // 过滤pv行为
+                dataStream.filter(data -> "pv".equals(data.getBehavior()))    // 过滤pv行为
                         .map(new MapFunction<UserBehavior, Tuple2<String, Long>>() {
                             @Override
                             public Tuple2<String, Long> map(UserBehavior value) throws Exception {
@@ -61,23 +60,24 @@ public class PageView {
                         .sum(1);
 
         //  并行任务改进，设计随机key，解决数据倾斜问题
-        SingleOutputStreamOperator<PageViewCount> pvStream = dataStream.filter(data -> "pv".equals(data.getBehavior()))
-                .map(new MapFunction<UserBehavior, Tuple2<Integer, Long>>() {
-                    @Override
-                    public Tuple2<Integer, Long> map(UserBehavior value) throws Exception {
-                        Random random = new Random();
-                        return new Tuple2<>(random.nextInt(10), 1L);
-                    }
-                })
-                .keyBy(data -> data.f0)
-                .timeWindow(Time.hours(1))
-                .aggregate(new PvCountAgg(), new PvCountResult());
+        SingleOutputStreamOperator<PageViewCount> pvStream =
+                dataStream.filter(data -> "pv".equals(data.getBehavior()))
+                        .map(new MapFunction<UserBehavior, Tuple2<Integer, Long>>() {
+                            @Override
+                            public Tuple2<Integer, Long> map(UserBehavior value) throws Exception {
+                                Random random = new Random();
+                                return new Tuple2<>(random.nextInt(10), 1L);
+                            }
+                        })
+                        .keyBy(data -> data.f0)
+                        .timeWindow(Time.hours(1))
+                        .aggregate(new PvCountAgg(), new PvCountResult());
 
         // 将各分区数据汇总起来
-        DataStream<PageViewCount> pvResultStream = pvStream
-                .keyBy(PageViewCount::getWindowEnd)
-                .process(new TotalPvCount());
-//                .sum("count");
+        DataStream<PageViewCount> pvResultStream =
+                pvStream.keyBy(PageViewCount::getWindowEnd)
+                        .process(new TotalPvCount());
+//                      .sum("count");
 
         pvResultStream.print();
 
@@ -123,8 +123,8 @@ public class PageView {
 
         @Override
         public void open(Configuration parameters) throws Exception {
-            totalCountState =
-                    getRuntimeContext().getState(new ValueStateDescriptor<Long>("total-count", Long.class, 0L));
+            totalCountState = getRuntimeContext().getState(
+                    new ValueStateDescriptor<Long>("total-count", Long.class, 0L));
         }
 
         @Override
