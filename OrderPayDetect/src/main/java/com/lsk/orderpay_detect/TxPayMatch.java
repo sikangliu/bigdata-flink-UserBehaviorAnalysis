@@ -74,7 +74,7 @@ public class TxPayMatch {
     // 实现自定义CoProcessFunction
     public static class TxPayMatchDetect
             extends CoProcessFunction<OrderEvent, ReceiptEvent, Tuple2<OrderEvent, ReceiptEvent>> {
-        // 定义状态，保存当前已经到来的订单支付事件和到账时间
+        // 定义状态，保存当前已经到来的订单支付事件和到账事件
         ValueState<OrderEvent> payState;
         ValueState<ReceiptEvent> receiptState;
 

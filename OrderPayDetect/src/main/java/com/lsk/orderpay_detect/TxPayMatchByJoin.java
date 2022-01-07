@@ -64,6 +64,7 @@ public class TxPayMatchByJoin {
     // 实现自定义ProcessJoinFunction
     public static class TxPayMatchDetectByJoin
             extends ProcessJoinFunction<OrderEvent, ReceiptEvent, Tuple2<OrderEvent, ReceiptEvent>> {
+        //只能配置到正常匹配的数据，拿不到不匹配的
         @Override
         public void processElement(OrderEvent left, ReceiptEvent right, Context ctx,
                                    Collector<Tuple2<OrderEvent, ReceiptEvent>> out) throws Exception {

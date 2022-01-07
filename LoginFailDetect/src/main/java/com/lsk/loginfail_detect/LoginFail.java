@@ -114,7 +114,7 @@ public class LoginFail {
         }
     }
 
-    // 实现自定义KeyedProcessFunction
+    // 实现自定义KeyedProcessFunction（提升告警时效性）
     public static class LoginFailDetectWarning extends KeyedProcessFunction<Long, LoginEvent, LoginFailWarning> {
         // 定义属性，最大连续登录失败次数
         private Integer maxFailTimes;

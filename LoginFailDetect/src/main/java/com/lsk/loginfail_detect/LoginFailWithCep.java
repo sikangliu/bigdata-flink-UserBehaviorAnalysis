@@ -39,7 +39,7 @@ public class LoginFailWithCep {
                         });
 
         // 1. 定义一个匹配模式
-        // firstFail -> secondFail, within 2s
+        // 方式一：firstFail -> secondFail, within 2s
         Pattern<LoginEvent, LoginEvent> loginFailPattern0 = Pattern
                 .<LoginEvent>begin("firstFail").where(new SimpleCondition<LoginEvent>() {
                     @Override
@@ -61,13 +61,14 @@ public class LoginFailWithCep {
                 })
                 .within(Time.seconds(3));
 
+        //方式二：推荐使用
         Pattern<LoginEvent, LoginEvent> loginFailPattern = Pattern
                 .<LoginEvent>begin("failEvents").where(new SimpleCondition<LoginEvent>() {
                     @Override
                     public boolean filter(LoginEvent value) throws Exception {
                         return "fail".equals(value.getLoginState());
                     }
-                }).times(3).consecutive()
+                }).times(3).consecutive()   //连续3次（严格近邻）
                 .within(Time.seconds(5));
 
         // 2. 将匹配模式应用到数据流上，得到一个pattern stream
